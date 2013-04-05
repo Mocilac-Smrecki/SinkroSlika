@@ -21,9 +21,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
+import android.os.AsyncTask;
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -55,8 +56,11 @@ public class FullscreenActivity extends Activity {
 	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 
 	private TextView text;
-	private Socket s;
-	private PrintWriter outp;
+	private Button send;
+	private Button act;
+	private Socket client;
+	private PrintWriter output;
+	private NetworkTask networktask;
 	/**
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
@@ -71,10 +75,13 @@ public class FullscreenActivity extends Activity {
 		//final View contentView = findViewById(R.id.fullscreen_content);
 		LinearLayout contentView = (LinearLayout) findViewById(R.id.fullscreen_content);
 		text = (TextView) findViewById(R.id.textView1);
+		send = (Button) findViewById(R.id.send);
+		act = (Button) findViewById(R.id.activ);
 		BallBounce b = new BallBounce (this);
 		contentView.addView(b);
+		networktask = new NetworkTask();
 		
-		
+		networktask.execute();
 		
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -141,6 +148,45 @@ public class FullscreenActivity extends Activity {
 		// while interacting with the UI.
 		findViewById(R.id.dummy_button).setOnTouchListener(
 				mDelayHideTouchListener);
+		
+		act.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				networktask = new NetworkTask();
+				networktask.execute();
+				text.setText("activ");
+				
+			}
+		});
+		send.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				
+				text.setText("Sending data");
+				networktask.SendDataToNetwork("bok!");
+				/*
+				String message;
+				message = "Bok! Ja sam klijent.";
+				
+				try {
+					client = new Socket("192.168.1.1", 8080);
+					output = new PrintWriter(client.getOutputStream(), true);
+					output.write(message);
+					
+					output.flush();
+					output.close();
+					client.close();
+				} catch (UnknownHostException e){
+					e.printStackTrace();
+				} catch (IOException e){
+					e.printStackTrace();
+				}
+				*/	
+			}
+		});
 	}
 	
 	@Override
@@ -164,31 +210,7 @@ public class FullscreenActivity extends Activity {
 			if (AUTO_HIDE) {
 				delayedHide(AUTO_HIDE_DELAY_MILLIS);
 			}
-			
-			//client send message
-			BufferedReader inp = null;
-			String serverMsg = null;
-			
-			try {
-				s = new Socket(InetAddress.getByName("161.53.67.97"), 4444);
-				/*
-				outp = new PrintWriter (s.getOutputStream(), true);
-				outp.write("Bok! Ja sam klijent.");
-				outp.flush();
 				
-				
-				inp = new BufferedReader(new InputStreamReader(s.getInputStream()));
-				serverMsg = inp.readLine();
-				text.setText(serverMsg);
-				*/
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
 			return false;
 		}
 		
@@ -210,6 +232,13 @@ public class FullscreenActivity extends Activity {
 		mHideHandler.removeCallbacks(mHideRunnable);
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
 	}
+	
+	@Override
+    protected void onDestroy() {
+        super.onDestroy();
+        networktask.cancel(true); //In case the task is currently running
+    }
+	
 	
 	class BallBounce extends View {
 		int screenW;
