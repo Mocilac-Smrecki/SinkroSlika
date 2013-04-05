@@ -80,9 +80,7 @@ public class FullscreenActivity extends Activity {
 		BallBounce b = new BallBounce (this);
 		contentView.addView(b);
 		networktask = new NetworkTask();
-		
-		networktask.execute();
-		
+				
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
 		mSystemUiHider = SystemUiHider.getInstance(this, contentView,
@@ -164,9 +162,9 @@ public class FullscreenActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				
-				
-				text.setText("Sending data");
+				text.setText("Send");
 				networktask.SendDataToNetwork("bok!");
+				
 				/*
 				String message;
 				message = "Bok! Ja sam klijent.";
