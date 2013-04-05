@@ -1,5 +1,13 @@
 package hr.fer.zari.sinkroslike;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 import hr.fer.zari.sinkroslike.util.SystemUiHider;
 
 import android.annotation.TargetApi;
@@ -14,6 +22,7 @@ import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -32,7 +41,7 @@ public class FullscreenActivity extends Activity {
 	 * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
 	 * user interaction before hiding the system UI.
 	 */
-	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+	private static final int AUTO_HIDE_DELAY_MILLIS = 10000;
 
 	/**
 	 * If set, will toggle the system UI visibility upon interaction. Otherwise,
@@ -45,6 +54,9 @@ public class FullscreenActivity extends Activity {
 	 */
 	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 
+	private TextView text;
+	private Socket s;
+	private PrintWriter outp;
 	/**
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
@@ -58,8 +70,12 @@ public class FullscreenActivity extends Activity {
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		//final View contentView = findViewById(R.id.fullscreen_content);
 		LinearLayout contentView = (LinearLayout) findViewById(R.id.fullscreen_content);
+		text = (TextView) findViewById(R.id.textView1);
 		BallBounce b = new BallBounce (this);
 		contentView.addView(b);
+		
+		
+		
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
 		mSystemUiHider = SystemUiHider.getInstance(this, contentView,
@@ -148,8 +164,34 @@ public class FullscreenActivity extends Activity {
 			if (AUTO_HIDE) {
 				delayedHide(AUTO_HIDE_DELAY_MILLIS);
 			}
+			
+			//client send message
+			BufferedReader inp = null;
+			String serverMsg = null;
+			
+			try {
+				s = new Socket(InetAddress.getByName("161.53.67.97"), 4444);
+				/*
+				outp = new PrintWriter (s.getOutputStream(), true);
+				outp.write("Bok! Ja sam klijent.");
+				outp.flush();
+				
+				
+				inp = new BufferedReader(new InputStreamReader(s.getInputStream()));
+				serverMsg = inp.readLine();
+				text.setText(serverMsg);
+				*/
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			return false;
 		}
+		
 	};
 
 	Handler mHideHandler = new Handler();
