@@ -244,23 +244,29 @@ public class FullscreenActivity extends Activity {
 		int X;
 		int Y;
 		int initialY;
-		int ballW;
-		int ballH;
-		int angle;
+		int initialX;
+		int duckW;
+		int duckH;
+		float angle;
 		double dY;
+		double dX;
 		float acc;
-		Bitmap ball, bgr;
+		Bitmap duck, bgr;
+		boolean maxAngle = false;
+		boolean scaleDuck = false;
 		
 		public BallBounce(Context context) {
 	        super(context);
-	        ball = BitmapFactory.decodeResource(getResources(),R.drawable.football); //load a ball image
-	        bgr = BitmapFactory.decodeResource(getResources(),R.drawable.sky_bgr); //load a background
-	        ballW = ball.getWidth();
-	        ballH = ball.getHeight();
+	        duck = BitmapFactory.decodeResource(getResources(),R.drawable.duck); //load a duck image
+	        bgr = BitmapFactory.decodeResource(getResources(),R.drawable.river); //load a background
+	        duckW = duck.getWidth();
+	        duckH = duck.getHeight();
 	        acc = 0.2f; //acceleration
 	        dY = 0; //vertical speed
-	        initialY = 100; //Initial vertical position.
+	        initialY = screenH; //Initial vertical position.
+	        initialX = 0;
 	        angle = 0; //Start value for rotation angle.
+	        dX = 1;
 	    }
 
 	    @Override
@@ -269,8 +275,8 @@ public class FullscreenActivity extends Activity {
 	        screenW = w;
 	        screenH = h;
 	        bgr = Bitmap.createScaledBitmap(bgr, w, h, true); //Resize background to fit the screen.
-	        X = (int) (screenW /2) - (ballW / 2) ; //Centre ball into the centre of the screen.
-	        Y = initialY;
+	        X = initialX; //Centre duck into the centre of the screen.
+	        Y = screenH - duckH - duckH/2;
 	    }
 
 	    @Override
@@ -279,23 +285,37 @@ public class FullscreenActivity extends Activity {
 
 	        //Draw background.
 	        canvas.drawBitmap(bgr, 0, 0, null);
-
-	        //Compute roughly ball speed and location.
+	        
+	        /*
+	        //Compute roughly duck speed and location.
 	        Y+= (int) dY; //Increase or decrease vertical position.
-	        if (Y > (screenH - ballH)) {
-	            dY=(-0.9)*dY; //Reverse speed when bottom hit.
+	        if (Y > (screenH - duckH)) {
+	            dY=(-1)*dY; //Reverse speed when bottom hit.
 	        }
 	        dY+= acc; //Increase or decrease speed.
-
+			*/
+	        X += (int) dX;
+	        if (X > (screenW - duckW) || X < 0) {
+	        	dX = (-1)*dX;
+	        	scaleDuck = !scaleDuck;
+	        	
+	        }
+	        
 	        //Increase rotating angle.
-	        if (angle++ >360)
-	            angle =0;
-
-	        //Draw ball
-	        canvas.save(); //Save the position of the canvas.
-	        canvas.rotate(angle, X + (ballW / 2), Y + (ballH / 2)); //Rotate the canvas.
-	        canvas.drawBitmap(ball, X, Y, null); //Draw the ball on the rotated canvas.
-	        canvas.restore(); //Rotate the canvas back so that it looks like ball has rotated.
+	        if (angle > 15) maxAngle = true;
+	        if (maxAngle == false) angle += 0.5;
+	        else angle -= 0.5;
+	        if (angle < -10) maxAngle = false;
+	        
+	        canvas.save(); //Save the position of the canvas
+	        //Draw duck
+	        if (scaleDuck == true)
+	        	{
+	        	canvas.scale(-1.0f, 1.0f, X + (duckW /2), Y + (duckH /2));	 
+	        	}
+	        canvas.rotate(angle, X + (duckW / 2), Y + (duckH / 2)); //Rotate the canvas.
+	        canvas.drawBitmap(duck, X, Y, null); //Draw the duck on the rotated canvas.
+	        canvas.restore(); //Rotate the canvas back so that it looks like duck has rotated.
 
 	        //Call the next frame.
 	        invalidate();
