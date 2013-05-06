@@ -8,20 +8,24 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import hr.fer.zari.sinkroslike.DisplayConnect.ClientZaAndroid;
 import hr.fer.zari.sinkroslike.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.os.AsyncTask;
@@ -54,22 +58,25 @@ public class FullscreenActivity extends Activity {
 	 * The flags to pass to {@link SystemUiHider#getInstance}.
 	 */
 	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
-
+	
+	
 	private TextView text;
 	private Button send;
 	private Button act;
 	private Socket client;
 	private PrintWriter output;
 	private NetworkTask networktask;
-	private ClientZaAndroid clientThread;
-	private String ipAdress = "161.53.67.97";
-	private String port = "8080";
+	
+	
+	private String ipAdress = "88.207.11.4";
+	private String port = "9090";
 	
 	/**
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
 	private SystemUiHider mSystemUiHider;
-
+	private Handler handler = new Handler();
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -88,9 +95,9 @@ public class FullscreenActivity extends Activity {
 		final ClientZaAndroid clientThread = new ClientZaAndroid("connection", ipAdress, port);
 		new Thread(clientThread).start();
 		*/
-		
+		/*
 		networktask = new NetworkTask();
-			
+			*/
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
 		mSystemUiHider = SystemUiHider.getInstance(this, contentView,
@@ -161,9 +168,10 @@ public class FullscreenActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				
+				/*
 				networktask = new NetworkTask();
 				networktask.execute();
+				*/
 				
 				text.setText("activ");
 				
@@ -173,12 +181,15 @@ public class FullscreenActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
+				sendMessage(v);
+				
 				/*
 				clientThread.sendMessage("poruka");
 				*/
-				
+				/*
 				text.setText("Send");
 				networktask.SendDataToNetwork("bok!");
+				*/
 				/*
 				String message;
 				message = "Bok! Ja sam klijent.";
@@ -200,6 +211,10 @@ public class FullscreenActivity extends Activity {
 			}
 		});
 	}
+	
+	public void sendMessage(View view) {
+		connectToInternet(ipAdress, port);
+    }
 	
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -248,7 +263,9 @@ public class FullscreenActivity extends Activity {
 	@Override
     protected void onDestroy() {
         super.onDestroy();
+        /*
         networktask.cancel(true); //In case the task is currently running
+        */
     }
 	
 	
@@ -335,6 +352,84 @@ public class FullscreenActivity extends Activity {
 	        invalidate();
 	    }
 		
+	}
+	
+	// ******************* connect to internet ************************ 
+	
+	protected void connectToInternet(String ip, String port)
+	{
+	    ClientZaAndroid c = new ClientZaAndroid("dretvaKonekcija", ip, port);
+	    new Thread(c).start();
+	}
+
+	public class ClientZaAndroid extends Thread {
+
+	    Socket socket;
+	    private String serverIP; 
+	    private Integer serverPort;
+	    private PrintWriter outputMessage = null;
+	    private BufferedReader inputMessage = null;
+	    private String serverMessage;
+	    private Boolean ide = true;
+
+		public ClientZaAndroid(String threadName, String ip, String port){
+			super(threadName);
+			serverIP = ip;
+			serverPort = Integer.parseInt(port);
+		}
+		
+	    public void sendMessage(String message){
+	        if (outputMessage != null && !outputMessage.checkError()) {
+	        	outputMessage.println(message);
+	        	outputMessage.flush();
+	        }
+	    }
+
+	 
+	    public void stopClient(){
+	        ide = false;
+	    }
+		
+		
+		public void run(){
+			
+			try {
+				socket = new Socket(serverIP, serverPort);
+				outputMessage = new PrintWriter(socket.getOutputStream(), true);
+				inputMessage = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				
+				serverMessage = inputMessage.readLine();
+				handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        text.setText(serverMessage);
+                    }
+                });
+				Log.i(serverMessage, serverMessage);
+				
+				while(ide && socket.isConnected() && !socket.isClosed()){
+
+					
+					if((serverMessage = inputMessage.readLine())!= null){
+						handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                text.setText(serverMessage);
+                            }
+                        });
+						Log.i(serverMessage, serverMessage);
+					}
+				}
+				Log.i("kraj", "aaaaaaaaaaaa");
+				
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}	
+
+		}
+
 	}
 	
 }
