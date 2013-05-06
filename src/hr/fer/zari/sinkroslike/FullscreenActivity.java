@@ -61,6 +61,10 @@ public class FullscreenActivity extends Activity {
 	private Socket client;
 	private PrintWriter output;
 	private NetworkTask networktask;
+	private ClientZaAndroid clientThread;
+	private String ipAdress = "161.53.67.97";
+	private String port = "8080";
+	
 	/**
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
@@ -79,8 +83,14 @@ public class FullscreenActivity extends Activity {
 		act = (Button) findViewById(R.id.activ);
 		BallBounce b = new BallBounce (this);
 		contentView.addView(b);
+		
+		/*
+		final ClientZaAndroid clientThread = new ClientZaAndroid("connection", ipAdress, port);
+		new Thread(clientThread).start();
+		*/
+		
 		networktask = new NetworkTask();
-				
+			
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
 		mSystemUiHider = SystemUiHider.getInstance(this, contentView,
@@ -151,8 +161,10 @@ public class FullscreenActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
+				
 				networktask = new NetworkTask();
 				networktask.execute();
+				
 				text.setText("activ");
 				
 			}
@@ -161,10 +173,12 @@ public class FullscreenActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
+				/*
+				clientThread.sendMessage("poruka");
+				*/
 				
 				text.setText("Send");
 				networktask.SendDataToNetwork("bok!");
-				
 				/*
 				String message;
 				message = "Bok! Ja sam klijent.";

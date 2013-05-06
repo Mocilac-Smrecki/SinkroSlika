@@ -3,6 +3,7 @@ package hr.fer.zari.sinkroslike;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -27,9 +28,10 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean>{
         boolean result = false;
         try {
             Log.i("AsyncTask", "doInBackground: Creating socket");
-            SocketAddress sockaddr = new InetSocketAddress("10.0.2.2", 8045);
+           
+            SocketAddress sockaddr = new InetSocketAddress(InetAddress.getByName("161.53.67.97"), 8085);
             client = new Socket();
-            client.connect(sockaddr, 10000); //10 second connection timeout
+            client.connect(sockaddr, 100000); //10 second connection timeout
             if (client.isConnected()) { 
                 input = client.getInputStream();
                 output = client.getOutputStream();
@@ -68,11 +70,13 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean>{
         return result;
     }
 	
+	/*
 	public void SendDataToNetwork(String cmd) { //You run this from the main thread.
         try {
             if (client.isConnected()) {
                 Log.i("AsyncTask", "SendDataToNetwork: Writing received message to socket");
                 output.write(cmd.getBytes());
+                output.flush();
             } else {
                 Log.i("AsyncTask", "SendDataToNetwork: Cannot send message. Socket is closed");
             }
@@ -80,10 +84,10 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean>{
             Log.i("AsyncTask", "SendDataToNetwork: Message send failed. Caught an exception");
         }
     }
+	*/
 	
-	/*
 	public boolean SendDataToNetwork(final String cmd) { //You run this from the main thread.
-            waitForSocketToConnect();  	
+            //waitForSocketToConnect();  	
             if (client.isConnected()) 
             {
                 Log.i("AsyncTask", "SendDataToNetwork: Writing received message to socket");
@@ -111,10 +115,11 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean>{
         	return false; 
 	}
 
-	
+	/*
 	public boolean waitForSocketToConnect()
     {
-        // immediately return if socket is already open
+  
+		// immediately return if socket is already open
         if (_bSocketStarted)
         {
             return true;
