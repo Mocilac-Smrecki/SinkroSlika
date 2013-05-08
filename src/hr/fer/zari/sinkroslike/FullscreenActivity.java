@@ -62,14 +62,16 @@ public class FullscreenActivity extends Activity {
 	private TextView text;
 	private Button send;
 	private Button act;
-	private int numOfDevices;
-	private int DeviceNumber;
+	private int numOfDevices = 0;
+	private int DeviceNumber = 0;
 
 	private boolean returnFromRight = false;
 	private boolean returnFromLeft = false;
 	private boolean sentNext = false;
 	private boolean sentPrevious = false;
 	private String smjer = "right";
+	
+	private boolean initX = false;
 	
 	private ClientZaAndroid c;
 	private String ipAdress = "161.53.67.220";
@@ -258,7 +260,7 @@ public class FullscreenActivity extends Activity {
 	        acc = 0.2f; //acceleration
 	        dY = 0; //vertical speed
 	        initialY = screenH; //Initial vertical position.
-	        initialX = 0;
+	        initialX = - (duckW + 10);
 	        angle = 0; //Start value for rotation angle.
 	        dX = 1;
 	    }
@@ -289,11 +291,27 @@ public class FullscreenActivity extends Activity {
 	        dY+= acc; //Increase or decrease speed.
 			*/
 	        
+	        if (DeviceNumber == 0)
+	        {
+	        	X = (- duckW) - 10;
+	        }
+	        else if (DeviceNumber == 1 && initX == false)
+	        {
+	        	X = 0;
+	        	initX = true;
+	        }
+	        else if (DeviceNumber > 1 && initX == false)
+	        {
+	        	X = - duckW;
+	        	initX = true;
+	        }
+	        
+	        X += (int) dX;
 	        
 	        // kretanje u desno, if not krajnji desni, else if krajnji desni
 	        if (X > (screenW - duckW) && DeviceNumber < numOfDevices && sentNext == false && smjer.equals("right"))
 	        {
-	        	Integer nextDev = DeviceNumber - 1;
+	        	Integer nextDev = DeviceNumber + 1;
         		String nextDevice = nextDev.toString();
         		c.sendMessage(nextDevice);
         		sentNext = true;
@@ -307,6 +325,7 @@ public class FullscreenActivity extends Activity {
 	        		scaleDuck = !scaleDuck;
 	        		sentNext = false;
 	        		smjer = "left";
+	        		returnFromRight = false;
 	        		
 	        	}
 	        }
@@ -315,6 +334,7 @@ public class FullscreenActivity extends Activity {
 	        	dX = (-1)*dX;
 	        	scaleDuck = !scaleDuck;
 	        	smjer = "left";
+	        	c.sendMessage("left");
 	        }
 	        
 	        
@@ -335,6 +355,7 @@ public class FullscreenActivity extends Activity {
 	        		scaleDuck = !scaleDuck;
 	        		sentPrevious = false;
 	        		smjer = "right";
+	        		returnFromLeft = false;
 	        		
 	        	}
 	        }
@@ -343,7 +364,9 @@ public class FullscreenActivity extends Activity {
 	        	dX = (-1)*dX;
 	        	scaleDuck = !scaleDuck;
 	        	smjer = "right";
+	        	c.sendMessage("right");
 	        }
+	        
      
 	        //Increase rotating angle.
 	        if (angle > 15) maxAngle = true;
@@ -406,10 +429,16 @@ public class FullscreenActivity extends Activity {
 				inputMessage = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				
 				serverMessage = inputMessage.readLine();
+				
+            	
 				handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        text.setText(serverMessage);
+                    	String DeviceNum = serverMessage.split(",")[0];
+                    	String numDevice = serverMessage.split(",")[1];
+                    	DeviceNumber = Integer.parseInt(DeviceNum);
+                    	numOfDevices = Integer.parseInt(numDevice);                    	
+                    	text.setText(serverMessage);
                     }
                 });
 				Log.i(serverMessage, serverMessage);
@@ -418,9 +447,13 @@ public class FullscreenActivity extends Activity {
 
 					
 					if((serverMessage = inputMessage.readLine())!= null){
+						
+						
 						handler.post(new Runnable() {
                             @Override
                             public void run() {
+                            	if (serverMessage.equals("left")) returnFromRight = true;
+                            	else if (serverMessage.equals("right")) returnFromLeft = true;
                                 text.setText(serverMessage);
                             }
                         });
