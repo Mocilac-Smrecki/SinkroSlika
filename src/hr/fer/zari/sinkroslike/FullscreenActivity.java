@@ -8,7 +8,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import hr.fer.zari.sinkroslike.DisplayConnect.ClientZaAndroid;
 import hr.fer.zari.sinkroslike.util.SystemUiHider;
 
 import android.annotation.TargetApi;
@@ -63,12 +62,17 @@ public class FullscreenActivity extends Activity {
 	private TextView text;
 	private Button send;
 	private Button act;
-	private Socket client;
-	private PrintWriter output;
-	private NetworkTask networktask;
+	private int numOfDevices;
+	private int DeviceNumber;
+
+	private boolean returnFromRight = false;
+	private boolean returnFromLeft = false;
+	private boolean sentNext = false;
+	private boolean sentPrevious = false;
+	private String smjer = "right";
 	
-	
-	private String ipAdress = "88.207.11.4";
+	private ClientZaAndroid c;
+	private String ipAdress = "161.53.67.220";
 	private String port = "9090";
 	
 	/**
@@ -88,16 +92,9 @@ public class FullscreenActivity extends Activity {
 		text = (TextView) findViewById(R.id.textView1);
 		send = (Button) findViewById(R.id.send);
 		act = (Button) findViewById(R.id.activ);
-		BallBounce b = new BallBounce (this);
+		DuckFloating b = new DuckFloating (this);
 		contentView.addView(b);
 		
-		/*
-		final ClientZaAndroid clientThread = new ClientZaAndroid("connection", ipAdress, port);
-		new Thread(clientThread).start();
-		*/
-		/*
-		networktask = new NetworkTask();
-			*/
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
 		mSystemUiHider = SystemUiHider.getInstance(this, contentView,
@@ -168,10 +165,6 @@ public class FullscreenActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				/*
-				networktask = new NetworkTask();
-				networktask.execute();
-				*/
 				
 				text.setText("activ");
 				
@@ -181,40 +174,13 @@ public class FullscreenActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				sendMessage(v);
 				
-				/*
-				clientThread.sendMessage("poruka");
-				*/
-				/*
-				text.setText("Send");
-				networktask.SendDataToNetwork("bok!");
-				*/
-				/*
-				String message;
-				message = "Bok! Ja sam klijent.";
-				
-				try {
-					client = new Socket("192.168.1.1", 8080);
-					output = new PrintWriter(client.getOutputStream(), true);
-					output.write(message);
-					
-					output.flush();
-					output.close();
-					client.close();
-				} catch (UnknownHostException e){
-					e.printStackTrace();
-				} catch (IOException e){
-					e.printStackTrace();
-				}
-				*/	
+				c = new ClientZaAndroid("dretvaKonekcija", ipAdress, port);
+			    new Thread(c).start();
+			    
 			}
 		});
 	}
-	
-	public void sendMessage(View view) {
-		connectToInternet(ipAdress, port);
-    }
 	
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -263,13 +229,10 @@ public class FullscreenActivity extends Activity {
 	@Override
     protected void onDestroy() {
         super.onDestroy();
-        /*
-        networktask.cancel(true); //In case the task is currently running
-        */
     }
 	
 	
-	class BallBounce extends View {
+	class DuckFloating extends View {
 		int screenW;
 		int screenH;
 		int X;
@@ -286,7 +249,7 @@ public class FullscreenActivity extends Activity {
 		boolean maxAngle = false;
 		boolean scaleDuck = false;
 		
-		public BallBounce(Context context) {
+		public DuckFloating(Context context) {
 	        super(context);
 	        duck = BitmapFactory.decodeResource(getResources(),R.drawable.duck); //load a duck image
 	        bgr = BitmapFactory.decodeResource(getResources(),R.drawable.river); //load a background
@@ -325,13 +288,63 @@ public class FullscreenActivity extends Activity {
 	        }
 	        dY+= acc; //Increase or decrease speed.
 			*/
-	        X += (int) dX;
-	        if (X > (screenW - duckW) || X < 0) {
+	        
+	        
+	        // kretanje u desno, if not krajnji desni, else if krajnji desni
+	        if (X > (screenW - duckW) && DeviceNumber < numOfDevices && sentNext == false && smjer.equals("right"))
+	        {
+	        	Integer nextDev = DeviceNumber - 1;
+        		String nextDevice = nextDev.toString();
+        		c.sendMessage(nextDevice);
+        		sentNext = true;
+	        }
+	        else if (X > screenW && DeviceNumber > 1 && smjer.equals("right"))
+	        {
+	        	X -= (int) dX;
+	        	if (returnFromRight == true)
+	        	{
+	        		dX = (-1)*dX;
+	        		scaleDuck = !scaleDuck;
+	        		sentNext = false;
+	        		smjer = "left";
+	        		
+	        	}
+	        }
+	        else if (DeviceNumber == numOfDevices && X > (screenW - duckW))
+	        {
 	        	dX = (-1)*dX;
 	        	scaleDuck = !scaleDuck;
-	        	
+	        	smjer = "left";
 	        }
 	        
+	        
+	        // kretanje u lijevo
+	        if (X < 0 && DeviceNumber > 1 && sentPrevious == false && smjer.equals("left"))
+	        {
+	        	Integer previousDev = DeviceNumber - 1;
+        		String prevDevice = previousDev.toString();
+        		c.sendMessage(prevDevice);
+        		sentPrevious = true;
+	        }
+	        else if (X < -duckW && DeviceNumber > 1 && smjer.equals("left"))
+	        {
+	        	X += (int) dX;
+	        	if (returnFromLeft == true)
+	        	{
+	        		dX = (-1)*dX;
+	        		scaleDuck = !scaleDuck;
+	        		sentPrevious = false;
+	        		smjer = "right";
+	        		
+	        	}
+	        }
+	        else if (DeviceNumber == 1 && X < 0)
+	        {
+	        	dX = (-1)*dX;
+	        	scaleDuck = !scaleDuck;
+	        	smjer = "right";
+	        }
+     
 	        //Increase rotating angle.
 	        if (angle > 15) maxAngle = true;
 	        if (maxAngle == false) angle += 0.5;
@@ -355,12 +368,6 @@ public class FullscreenActivity extends Activity {
 	}
 	
 	// ******************* connect to internet ************************ 
-	
-	protected void connectToInternet(String ip, String port)
-	{
-	    ClientZaAndroid c = new ClientZaAndroid("dretvaKonekcija", ip, port);
-	    new Thread(c).start();
-	}
 
 	public class ClientZaAndroid extends Thread {
 
