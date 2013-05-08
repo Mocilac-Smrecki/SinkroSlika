@@ -434,11 +434,14 @@ public class FullscreenActivity extends Activity {
 				handler.post(new Runnable() {
                     @Override
                     public void run() {
+                    	
                     	String DeviceNum = serverMessage.split(",")[0];
                     	String numDevice = serverMessage.split(",")[1];
                     	DeviceNumber = Integer.parseInt(DeviceNum);
-                    	numOfDevices = Integer.parseInt(numDevice);                    	
+                    	numOfDevices = Integer.parseInt(numDevice); 
+                    	                 	
                     	text.setText(serverMessage);
+                    	
                     }
                 });
 				Log.i(serverMessage, serverMessage);
@@ -452,8 +455,10 @@ public class FullscreenActivity extends Activity {
 						handler.post(new Runnable() {
                             @Override
                             public void run() {
+                            	
                             	if (serverMessage.equals("left")) returnFromRight = true;
                             	else if (serverMessage.equals("right")) returnFromLeft = true;
+                            	
                                 text.setText(serverMessage);
                             }
                         });
