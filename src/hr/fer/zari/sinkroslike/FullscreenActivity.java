@@ -299,6 +299,7 @@ public class FullscreenActivity extends Activity {
 	        {
 	        	X = 0;
 	        	initX = true;
+	        	c.sendMessage("right");
 	        }
 	        else if (DeviceNumber > 1 && initX == false)
 	        {
@@ -310,7 +311,7 @@ public class FullscreenActivity extends Activity {
 	        }
 	        
 	        X += (int) dX;
-	        
+   
 	        // kretanje u desno, if not krajnji desni, else if krajnji desni
 	        if (X > (screenW - duckW) && DeviceNumber < numOfDevices && sentNext == false && smjer.equals("right"))
 	        {
@@ -344,7 +345,7 @@ public class FullscreenActivity extends Activity {
 	        // kretanje u lijevo
 	        if (X < -duckW && DeviceNumber > 1 && smjer.equals("left"))
 	        {
-	        	X += (int) dX;
+	        	X -= (int) dX;
 	        	if (returnFromLeft == true)
 	        	{
 	        		dX = (-1)*dX;
