@@ -303,6 +303,9 @@ public class FullscreenActivity extends Activity {
 	        else if (DeviceNumber > 1 && initX == false)
 	        {
 	        	X = - duckW;
+	        	dX = (-1)*dX;
+	        	smjer = "left";
+	        	scaleDuck = !scaleDuck;
 	        	initX = true;
 	        }
 	        
@@ -316,7 +319,7 @@ public class FullscreenActivity extends Activity {
         		c.sendMessage(nextDevice);
         		sentNext = true;
 	        }
-	        else if (X > screenW && DeviceNumber > 1 && smjer.equals("right"))
+	        else if (X > screenW && DeviceNumber < numOfDevices && smjer.equals("right"))
 	        {
 	        	X -= (int) dX;
 	        	if (returnFromRight == true)
@@ -339,14 +342,7 @@ public class FullscreenActivity extends Activity {
 	        
 	        
 	        // kretanje u lijevo
-	        if (X < 0 && DeviceNumber > 1 && sentPrevious == false && smjer.equals("left"))
-	        {
-	        	Integer previousDev = DeviceNumber - 1;
-        		String prevDevice = previousDev.toString();
-        		c.sendMessage(prevDevice);
-        		sentPrevious = true;
-	        }
-	        else if (X < -duckW && DeviceNumber > 1 && smjer.equals("left"))
+	        if (X < -duckW && DeviceNumber > 1 && smjer.equals("left"))
 	        {
 	        	X += (int) dX;
 	        	if (returnFromLeft == true)
@@ -358,6 +354,13 @@ public class FullscreenActivity extends Activity {
 	        		returnFromLeft = false;
 	        		
 	        	}
+	        }
+	        else if (X < 0 && DeviceNumber > 1 && sentPrevious == false && smjer.equals("left"))
+	        {
+	        	Integer previousDev = DeviceNumber - 1;
+        		String prevDevice = previousDev.toString();
+        		c.sendMessage(prevDevice);
+        		sentPrevious = true;
 	        }
 	        else if (DeviceNumber == 1 && X < 0)
 	        {
