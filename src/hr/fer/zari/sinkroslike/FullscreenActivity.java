@@ -12,7 +12,12 @@ import hr.fer.zari.sinkroslike.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -58,10 +63,9 @@ public class FullscreenActivity extends Activity {
 	 */
 	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 	
-	
 	private TextView text;
 	private Button send;
-	private Button act;
+	private Button settings;
 	private int numOfDevices = 0;
 	private int DeviceNumber = 0;
 
@@ -70,7 +74,7 @@ public class FullscreenActivity extends Activity {
 	private boolean sentNext = false;
 	private boolean sentPrevious = false;
 	private String smjer = "right";
-	
+	private boolean boostDuck = false;
 	private boolean initX = false;
 	
 	private ClientZaAndroid c;
@@ -87,13 +91,13 @@ public class FullscreenActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_fullscreen);
-
+		
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		//final View contentView = findViewById(R.id.fullscreen_content);
 		LinearLayout contentView = (LinearLayout) findViewById(R.id.fullscreen_content);
 		text = (TextView) findViewById(R.id.textView1);
 		send = (Button) findViewById(R.id.send);
-		act = (Button) findViewById(R.id.activ);
+		settings = (Button) findViewById (R.id.settings);
 		DuckFloating b = new DuckFloating (this);
 		contentView.addView(b);
 		
@@ -163,15 +167,7 @@ public class FullscreenActivity extends Activity {
 		findViewById(R.id.dummy_button).setOnTouchListener(
 				mDelayHideTouchListener);
 		
-		act.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				
-				text.setText("activ");
-				
-			}
-		});
+		
 		send.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
@@ -179,7 +175,36 @@ public class FullscreenActivity extends Activity {
 				
 				c = new ClientZaAndroid("dretvaKonekcija", ipAdress, port);
 			    new Thread(c).start();
-			    
+			    send.setEnabled(false);
+			}
+		});
+		
+		settings.setOnClickListener(new View.OnClickListener() {
+			
+			
+			@Override
+			public void onClick(View v) {
+				
+				AlertDialog.Builder alert = new AlertDialog.Builder(FullscreenActivity.this);
+				alert.setTitle("Server IP adresa");
+				
+				final EditText input = new EditText(FullscreenActivity.this);
+				alert.setView(input);
+				input.setText(ipAdress);
+				alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						ipAdress = input.getText().toString();
+						
+					}
+				});
+				
+				alert.setCancelable(false);
+				
+				alert.show();
+				
 			}
 		});
 	}
@@ -260,7 +285,7 @@ public class FullscreenActivity extends Activity {
 	        acc = 0.2f; //acceleration
 	        dY = 0; //vertical speed
 	        initialY = screenH; //Initial vertical position.
-	        initialX = - (duckW + 10);
+	        initialX = - (duckW + 2);
 	        angle = 0; //Start value for rotation angle.
 	        dX = 1;
 	    }
@@ -378,12 +403,18 @@ public class FullscreenActivity extends Activity {
 	        else angle -= 0.5;
 	        if (angle < -10) maxAngle = false;
 	        
+	        
 	        canvas.save(); //Save the position of the canvas
 	        //Draw duck
 	        if (scaleDuck == true)
 	        	{
 	        	canvas.scale(-1.0f, 1.0f, X + (duckW /2), Y + (duckH /2));	 
 	        	}
+	        if (boostDuck == true)
+	        {
+	        	canvas.scale(1.5f, 1.5f, X + (duckW /2), Y + (duckH /2));
+	        	boostDuck = false;
+	        }
 	        canvas.rotate(angle, X + (duckW / 2), Y + (duckH / 2)); //Rotate the canvas.
 	        canvas.drawBitmap(duck, X, Y, null); //Draw the duck on the rotated canvas.
 	        canvas.restore(); //Rotate the canvas back so that it looks like duck has rotated.
@@ -419,7 +450,6 @@ public class FullscreenActivity extends Activity {
 	        }
 	    }
 
-	 
 	    public void stopClient(){
 	        ide = false;
 	    }
@@ -434,7 +464,6 @@ public class FullscreenActivity extends Activity {
 				
 				serverMessage = inputMessage.readLine();
 				
-            	
 				handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -443,7 +472,6 @@ public class FullscreenActivity extends Activity {
                     	String numDevice = serverMessage.split(",")[1];
                     	DeviceNumber = Integer.parseInt(DeviceNum);
                     	numOfDevices = Integer.parseInt(numDevice); 
-                    	                 	
                     	text.setText(serverMessage);
                     	
                     }
@@ -455,21 +483,20 @@ public class FullscreenActivity extends Activity {
 					
 					if((serverMessage = inputMessage.readLine())!= null){
 						
-						
 						handler.post(new Runnable() {
                             @Override
                             public void run() {
                             	
                             	if (serverMessage.equals("left")) returnFromRight = true;
                             	else if (serverMessage.equals("right")) returnFromLeft = true;
-                            	
+                            	else if (serverMessage.equals("signal")) boostDuck = true;
                                 text.setText(serverMessage);
                             }
                         });
 						Log.i(serverMessage, serverMessage);
 					}
 				}
-				Log.i("kraj", "aaaaaaaaaaaa");
+				Log.i("kraj", "end");
 				
 			} catch (UnknownHostException e) {
 				e.printStackTrace();

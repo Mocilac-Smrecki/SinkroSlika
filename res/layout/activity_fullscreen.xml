@@ -48,29 +48,30 @@
                 android:layout_height="wrap_content"
                 android:text="tv" />
 
+             <Button
+                android:id="@+id/settings"
+                style="?buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/settings" />
+             
             <Button
                 android:id="@+id/dummy_button"
                 style="?buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/dummy_button" />
-            
-            <Button
-                android:id="@+id/activ"
-                style="?buttonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="ac" />
-           
+                android:text="@string/dummy_button"
+                android:visibility="invisible"/>
+ 
             <Button
                 android:id="@+id/send"
                 style="?buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="s" />
+                android:text="@string/connect" />
             
         </LinearLayout>
     </FrameLayout>
