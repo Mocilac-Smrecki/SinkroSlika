@@ -267,7 +267,7 @@ public class FullscreenActivity extends Activity {
 		double dX;
 		float acc;
 		Bitmap duck, bgr;
-		boolean maxAngle = false;			//oznaèava maksimalni kut do kojega se patkica može rotirati
+		boolean maxAngle = false;			//oznaèava da je dosegnut maksimalni kut do kojega se patkica može rotirati
 		boolean scaleDuck = false;			//oznaèava da patkica treba promjeniti smjer kretanja (tj. da treba primjeniti matricu skaliranja)
 		
 		public DuckFloating(Context context) {
@@ -328,7 +328,7 @@ public class FullscreenActivity extends Activity {
         		c.sendMessage(nextDevice);				//pošalji poruku s rednim brojem iduæeg mobitela
         		sentNext = true;
 	        }
-	        //ako je patkica "otplivala" izvan desnog ruba zaslona, a mobitel nije krajnji desni
+	        //ako je patkica otplivala izvan desnog ruba zaslona, a mobitel nije krajnji desni
 	        else if (X > screenW && DeviceNumber < numOfDevices && smjer.equals("right"))
 	        {
 	        	X -= (int) dX; /*zadrži patkicu na istoj poziciji tako da u svakoj iteraciji umanjiš X koordinatu za pomak dX. (buduæi da se u svakoj iteraciji X
