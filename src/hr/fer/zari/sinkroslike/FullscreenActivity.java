@@ -72,7 +72,7 @@ public class FullscreenActivity extends Activity {
 	private boolean initX = false;				//oznaèava da je poèetna koordinata patkice inicijalizirana
 	
 	private ClientZaAndroid c;
-	private String ipAdress = "161.53.67.220";
+	private String ipAdress = "89.201.215.48";
 	private String port = "9090";
 	
 	/**
@@ -93,6 +93,7 @@ public class FullscreenActivity extends Activity {
 		settings = (Button) findViewById (R.id.settings);	
 		DuckFloating duck = new DuckFloating (this);
 		contentView.addView(duck);
+		
 		
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -276,7 +277,7 @@ public class FullscreenActivity extends Activity {
 	        bgr = BitmapFactory.decodeResource(getResources(),R.drawable.river); //uèitaj pozadinsku sliku
 	        duckW = duck.getWidth();
 	        duckH = duck.getHeight();
-	        initialX = - (duckW + 2);
+	        initialX = - (duckW + 4);
 	        angle = 0; //poèetni kut rotacije.
 	        dX = 1;	   //pomak po osi X
 	    }
@@ -300,7 +301,7 @@ public class FullscreenActivity extends Activity {
 	        
 	        if (DeviceNumber == 0)
 	        {
-	        	X = (- duckW) - 10;
+	        	X = (- duckW) - 2;
 	        }
 	        
 	        else if (DeviceNumber == 1 && initX == false)
@@ -311,7 +312,7 @@ public class FullscreenActivity extends Activity {
 	        }
 	        else if (DeviceNumber > 1 && initX == false)
 	        {
-	        	X = - duckW;
+	        	X = - duckW - 2;
 	        	dX = (-1)*dX;
 	        	smjer = "left";
 	        	scaleDuck = !scaleDuck;
@@ -329,7 +330,7 @@ public class FullscreenActivity extends Activity {
         		sentNext = true;
 	        }
 	        //ako je patkica otplivala izvan desnog ruba zaslona, a mobitel nije krajnji desni
-	        else if (X > screenW && DeviceNumber < numOfDevices && smjer.equals("right"))
+	        else if (X > screenW + 4 && DeviceNumber < numOfDevices && smjer.equals("right"))
 	        {
 	        	X -= (int) dX; /*zadrži patkicu na istoj poziciji tako da u svakoj iteraciji umanjiš X koordinatu za pomak dX. (buduæi da se u svakoj iteraciji X
 	        	 				koordinata najprije uveæava za dX, a na ovom mjestu se smanjuje za isti iznos, to æe za posljedicu imati da se patkica neæe kretati*/
@@ -356,7 +357,7 @@ public class FullscreenActivity extends Activity {
 	        // kretanje u lijevo
 	        
 	        //ako je patkica otplivala izvan lijevog ruba zaslona, a mobitel nije krajnje lijevi
-	        if (X < -duckW && DeviceNumber > 1 && smjer.equals("left"))
+	        if (X < -duckW - 4 && DeviceNumber > 1 && smjer.equals("left"))
 	        {
 	        	X -= (int) dX;	//zadrži patkicu na istom mjestu po istoj logici kao i nekoliko redaka iznad
 	        	if (returnFromLeft == true)
@@ -370,7 +371,7 @@ public class FullscreenActivity extends Activity {
 	        	}
 	        }
 	        //ako je patkica doplivala do lijevog ruba zaslona, a mobitel nije krajnje lijevi
-	        else if (X < 0 && DeviceNumber > 1 && sentPrevious == false && smjer.equals("left"))
+	        else if (X < 1 && DeviceNumber > 1 && sentPrevious == false && smjer.equals("left"))
 	        {
 	        	Integer previousDev = DeviceNumber - 1;
         		String prevDevice = previousDev.toString();
