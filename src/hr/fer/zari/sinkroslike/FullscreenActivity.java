@@ -167,8 +167,9 @@ public class FullscreenActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				
-				c = new ClientZaAndroid("dretvaKonekcija", ipAdress, port);
+				c = new ClientZaAndroid("dretvaKonekcija", ipAdress, port);	
 			    new Thread(c).start();
+			    
 			    send.setEnabled(false);
 			}
 		});
@@ -453,6 +454,9 @@ public class FullscreenActivity extends Activity {
 				outputMessage = new PrintWriter(socket.getOutputStream(), true);					//za slanje poruka na server
 				inputMessage = new BufferedReader(new InputStreamReader(socket.getInputStream()));	//za primanje poruka sa servera
 				
+				outputMessage.println("patkica");
+				outputMessage.flush();
+				
 				serverMessage = inputMessage.readLine();
 				
 				handler.post(new Runnable() {
@@ -463,7 +467,7 @@ public class FullscreenActivity extends Activity {
                     	DeviceNumber = Integer.parseInt(DeviceNum);
                     	numOfDevices = Integer.parseInt(numDevice);
                     	text.setText(serverMessage);
-                    	
+                    	                    	
                     }
                 });
 				Log.i(serverMessage, serverMessage);
