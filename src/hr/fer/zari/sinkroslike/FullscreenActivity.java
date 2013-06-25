@@ -483,7 +483,7 @@ public class FullscreenActivity extends Activity {
                             	
                             	if (serverMessage.equals("left")) returnFromRight = true;
                             	else if (serverMessage.equals("right")) returnFromLeft = true;
-                            	else if (serverMessage.equals("signal")) zoomDuck = true;
+                            	else if (serverMessage.equals("s")) zoomDuck = true;
                                 text.setText(serverMessage);
                             }
                         });
