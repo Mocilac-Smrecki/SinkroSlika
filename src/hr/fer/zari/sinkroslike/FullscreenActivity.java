@@ -302,7 +302,7 @@ public class FullscreenActivity extends Activity {
 	        
 	        if (DeviceNumber == 0)
 	        {
-	        	X = (- duckW) - 2;
+	        	X = (- duckW) - 6;
 	        }
 	        
 	        else if (DeviceNumber == 1 && initX == false)
@@ -313,7 +313,7 @@ public class FullscreenActivity extends Activity {
 	        }
 	        else if (DeviceNumber > 1 && initX == false)
 	        {
-	        	X = - duckW - 2;
+	        	X = - duckW - 6;
 	        	dX = (-1)*dX;
 	        	smjer = "left";
 	        	scaleDuck = !scaleDuck;
